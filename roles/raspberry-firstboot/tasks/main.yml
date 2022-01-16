@@ -1,0 +1,16 @@
+---
+# tasks file for raspberry-firstboot
+- name: remove key from known hosts for hostname
+  local_action:
+    module: shell
+    cmd: ssh-keygen -f {{ lookup('env','HOME') }}/.ssh/known_hosts -R {{ inventory_hostname }}
+
+- name: add key for hostname to known hosts
+  local_action:
+    module: shell
+    cmd: ssh-keyscan -H {{ inventory_hostname }} >> {{ lookup('env','HOME') }}/.ssh/known_hosts
+
+- name: copy SSH key to remote host
+  local_action:
+    module: shell
+    cmd: sshpass -praspberry ssh-copy-id -i {{ lookup('env','HOME') }}/.ssh/id_rsa.pub pi@{{ inventory_hostname }}
