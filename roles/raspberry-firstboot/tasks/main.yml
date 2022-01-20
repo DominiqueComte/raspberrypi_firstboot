@@ -5,6 +5,17 @@
     module: shell
     cmd: ssh-keygen -f {{ lookup('env','HOME') }}/.ssh/known_hosts -R {{ inventory_hostname }}
 
+- name: reslve IP address of target host
+  local_action:
+    module: shell
+    cmd: "host {{ inventory_hostname }} | awk '/has address/ { print $4 }'"
+  register: inventory_ipv4_address
+  
+- name: remove key from known hosts for target IP address
+  local_action:
+    module: shell
+    cmd: ssh-keygen -f {{ lookup('env','HOME') }}/.ssh/known_hosts -R {{ inventory_ipv4_address.stdout }}
+
 - name: add key for hostname to known hosts
   local_action:
     module: shell
